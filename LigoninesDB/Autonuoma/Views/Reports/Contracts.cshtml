@@ -1,0 +1,102 @@
+﻿@model Org.Ktu.Isk.P175B602.Autonuoma.Models.ContractsReport.Report
+
+@* this will also be used as page title in main layout *@
+@{ ViewData["title"] = "Paciento daktarų ataskaita"; }
+
+@* content header *@
+<div class="main-content-header">
+	<span class="title">@ViewData["title"]</span>
+</div>
+
+@* content itself *@
+<div class="main-content-rep">
+@using( Html.BeginForm(FormMethod.Get, new { @class="rep" }) )
+{
+	<p><strong>Parengta:</strong> @String.Format("{0:yyyy-MM-dd HH:mm}", DateTime.Now)</p>
+
+	@* filter section *@
+	<div class="filter">
+		<div class="fields">
+			<div class="field">
+				<label>Paciento gimimo data nuo:</label>
+				@Html.TextBoxFor(m => m.DateFrom, "{0:yyyy-MM-dd}", new { @class = "date-picker" })
+			</div>
+
+			<div class="field">
+				<label>Paciento gimimo data iki:</label>
+				@Html.TextBoxFor(m => m.DateTo, "{0:yyyy-MM-dd}", new { @class = "date-picker" })
+			</div>
+		</div>
+
+		<div class="buttons">
+			<button class="btn btn-success"><i class="fa-solid fa-filter"></i> Atrinkti</button>
+		</div>
+	</div>
+
+	@* report data *@
+	<table class="report">
+		<thead>
+			<tr>
+				<th>@Html.DisplayNameFor(m => m.Daktarai[0].id_Daktaras)</th>
+				<th>@Html.DisplayNameFor(m => m.Daktarai[0].DOCVardas)</th>
+				<th>@Html.DisplayNameFor(m => m.Daktarai[0].DOCPavarde)</th>
+				<th>@Html.DisplayNameFor(m => m.Daktarai[0].NuoKadaDirba)</th>
+			</tr>
+		</thead>
+		<tbody>
+			@if( Model.Daktarai.Count == 0 )
+			{
+				@* no data message *@
+				<tr class="no-data-msg">
+					<td colspan="4" align="center">Nurodytame gimimo laikotarpyje nera pacientu</td>
+				</tr>
+			}
+			else 
+			{
+				@* groups *@
+				@for( int i = 0; i < Model.Daktarai.Count; i++ )
+				{
+					@* group header *@
+					if( i == 0 || Model.Daktarai[i].PACAsmens_Kod != Model.Daktarai[i-1].PACAsmens_Kod )
+					{
+						<tr class="group-header">
+							<td 
+								colspan="4" 
+								align="center"
+							>
+								<b>@Html.DisplayFor(m => Model.Daktarai[i].PACVardas) @Html.DisplayFor(m => Model.Daktarai[i].PACPavarde) @Html.DisplayNameFor(m => Model.Daktarai[i].PacGim) @Html.DisplayFor(m => Model.Daktarai[i].PacGim)</b>
+							</td>
+						</tr>
+					}
+
+					@* group content *@
+					<tr>
+						<td>#@Html.DisplayFor(m => Model.Daktarai[i].id_Daktaras)</td>
+						<td>@Html.DisplayFor(m => Model.Daktarai[i].DOCVardas)</td>
+						<td>@Html.DisplayFor(m => Model.Daktarai[i].DOCPavarde)</td>
+						<td>@Html.DisplayFor(m => Model.Daktarai[i].NuoKadaDirba)</td>
+					</tr>
+
+					@* group total *@
+					if( i == Model.Daktarai.Count-1 || Model.Daktarai[i].PACAsmens_Kod != Model.Daktarai[i + 1].PACAsmens_Kod )
+					{
+						<tr>
+							<td colspan="2"></td>
+							<td><b>Is viso sis pacientas turi daktaru :</b></td>
+							<td><b>@Html.DisplayFor(m => Model.Daktarai[i].BendraDaktaruSuma)</b></td>
+						</tr>
+					}
+				}
+
+				@* grand total *@
+				<tr class="grand-total-header">
+					<td colspan="3" align="center"><b>Viso Daktaru Ataskaitoje:</b></td>
+					<td>
+						<b>@Html.DisplayFor(m => Model.VisoSumaDaktaru)</b>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+</div>
